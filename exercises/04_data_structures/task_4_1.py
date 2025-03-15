@@ -14,8 +14,7 @@
 проверять результат.
 
 """
-from exercises.pyneng_common_functions import get_func_params_default_value
 
 nat = "ip nat inside source list ACL interface FastEthernet0/1 overload"
 
-print("test git")
+print(nat.replace("Fast", "Gigabit"))
