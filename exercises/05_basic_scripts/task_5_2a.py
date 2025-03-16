@@ -49,3 +49,26 @@ bin_ip = "00001010000000010000000111000011"
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+data = input('Введите ip адрес ')
+ip, mask = data.split('/')
+ip = ip.split('.')
+mask = int(mask)
+
+oct1, oct2, oct3, oct4 = int(ip[0]), int(ip[1]), int(ip[2]), int(ip[3])
+template_ip_network = "{:>08b}" * 4
+bin_ip = template_ip_network.format(oct1, oct2, oct3, oct4)
+bin_ip = bin_ip[:mask] + "0" * (32 - mask)
+oct1, oct2, oct3, oct4 = int(bin_ip[:8], 2), int(bin_ip[8:16], 2), int(bin_ip[16:24], 2), int(bin_ip[24:], 2)
+
+bin_mask = "1" * mask + "0" * (32 - mask)
+m1, m2, m3, m4 = int(bin_mask[:8], 2), int(bin_mask[8:16], 2), int(bin_mask[16:24], 2), int(bin_mask[24:], 2)
+
+template='''Network:
+{0:<8}  {1:<8}  {2:<8}  {3:<8}
+{0:>08b}  {1:>08b}  {2:>08b}  {3:>08b}
+Mask:
+/{8}
+{4:<8}  {5:<8}  {6:<8}  {7:<8}
+{4:>08b}  {5:>08b}  {6:>08b}  {7:>08b}
+'''
+print(template.format(oct1, oct2, oct3, oct4, m1, m2, m3, m4, mask))

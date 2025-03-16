@@ -30,3 +30,25 @@ Out[1]: '11111111111111111111111111110000'
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+from turtledemo.penrose import makeshapes
+
+data = input('Введите айпи адрес ')
+ip, mask = data.split('/')
+ip = ip.split('.')
+template = '''Network:
+{0:<8}  {1:<8}  {2:<8}  {3:<8}
+{0:>08b}  {1:>08b}  {2:>08b}  {3:>08b}
+Mask:
+/{8}
+{4:<8}  {5:<8}  {6:<8}  {7:<8}
+{4:>08b}  {5:>08b}  {6:>08b}  {7:>08b}
+'''
+mask_bin = "1" * int(mask) + "0" * (32 - int(mask))
+mask_decimal = [int(mask_bin[:8], 2), int(mask_bin[8:16], 2), int(mask_bin[16:24], 2),
+                      int(mask_bin[24:], 2)]
+print(template.format(int(ip[0]), int(ip[1]), int(ip[2]), int(ip[3]), mask_decimal[0], mask_decimal[1], mask_decimal[2], mask_decimal[3],
+                      int(mask)))
+#print(template.format(int(ip[0]), int(ip[1]), int(ip[2]), int(ip[3]), int(mask), int(mask_bin[:8], 2), int(mask_bin[8:16], 2), int(mask_bin[16:24], 2),
+                      #int(mask_bin[24:], 2),
+                      #(mask_bin[:8]), (mask_bin[8:16]), (mask_bin[16:24]),
+                     # (mask_bin[24:])))
