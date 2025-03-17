@@ -74,6 +74,19 @@ trunk = {
     "0/7": ["only", "30"],
 }
 
+commands_dict = {"add": "add ", "only": "", "del": "remove "}
+
+for intf, vlan in trunk.items():
+    print("interface FastEthernet" + intf)
+    for command in trunk_template:
+        if command.endswith("allowed vlan"):
+            print(f" {command} {commands_dict[vlan[0]]}{','.join(vlan[1:])}")
+        else:
+            print(f" {command}")
+
+
+
+
 # for intf, vlan in access.items():
 #     print("interface FastEthernet" + intf)
 #     for command in access_template:
