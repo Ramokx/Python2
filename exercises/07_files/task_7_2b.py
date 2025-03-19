@@ -15,5 +15,11 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+import sys
 
 ignore = ["duplex", "alias", "configuration"]
+
+with open(sys.argv[1], 'r') as input, open(sys.argv[2], 'a') as output:
+    for line in input:
+        if not line.startswith('!') and ignore[0] not in line and ignore[1] not in line and ignore[2] not in line:
+            output.write(line)

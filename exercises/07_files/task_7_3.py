@@ -20,3 +20,9 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+template = "{:<9}{}{:>11}"
+with open('CAM_table.txt', 'r') as file:
+    for line in file:
+        line = line.strip().split()
+        if line and line[0].isdigit():
+            print(template.format(int(line[0]), line[1], line[-1]))
