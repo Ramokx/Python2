@@ -64,3 +64,33 @@ def ignore_command(command, ignore):
         if word in command:
             ignore_status = True
     return ignore_status
+
+
+def convert_config_to_dict(config_filename):
+    with open(config_filename, 'r') as config:
+        result = dict()
+        for command in config:
+            command = command.rstrip().replace('!', '')
+            if command and not ignore_command(command, ignore) and not command.startswith(' '):
+                high_command = command.strip()
+                result[high_command] = []
+            elif command and not ignore_command(command, ignore):
+                result[high_command].append(command.strip())
+        return result
+
+
+#2 вариант
+def convert_config_to_dict2(config_filename):
+    with open(config_filename, 'r') as config:
+        result = dict()
+        for command in config:
+            command = command.rstrip().replace('!', '')
+            if command and not ignore_command(command, ignore):
+                if not command.startswith(' '):
+                    high_command = command.strip()
+                    result[high_command] = []
+                else:
+                    result[high_command].append(command.strip())
+        return result
+
+
