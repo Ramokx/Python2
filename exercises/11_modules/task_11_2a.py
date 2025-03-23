@@ -78,8 +78,13 @@ from draw_network_graph import draw_topology
 
 def unique_network_map(topology_dict):
     unique_map = dict()
-    unique_intf = list(set(item[0] for item in [topology_dict.keys()] + [topology_dict.values()]))
-    return unique_intf
+    unique_intfs = list(set(item for item in list(topology_dict.keys()) + list(topology_dict.values())))
+    for intf in unique_intfs:
+        if intf in topology_dict.keys() and topology_dict[intf] not in unique_map.keys():
+            unique_map[intf] = topology_dict[intf]
+    #unique_map = {intf: topology_dict[intf] for intf in unique_intfs if intf in topology_dict.keys()}
+
+    return unique_map
     
 infiles = [
     "sh_cdp_n_sw1.txt",
@@ -90,5 +95,6 @@ infiles = [
 
 if __name__ == '__main__':
     topology = create_network_map(['sh_cdp_n_sw1.txt', 'sh_cdp_n_r1.txt', 'sh_cdp_n_r2.txt', 'sh_cdp_n_r3.txt'])
-    print(unique_network_map(topology)
-    #draw_topology(topology)
+    print(unique_network_map(topology))
+    print(topology)
+    draw_topology(topology)
