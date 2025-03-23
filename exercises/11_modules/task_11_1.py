@@ -43,6 +43,15 @@ def parse_cdp_neighbors(command_output):
     и с файлами и с выводом с оборудования.
     Плюс учимся работать с таким выводом.
     """
+    result = dict()
+    commands = [command.lstrip() for command in command_output.replace('\n\n','\n').strip().split('\n')]
+    root = commands[0][0:commands[0].find('>')] # название устройства на котором вводили команду
+    for command in commands[4:]:
+        command = command.split()
+        locan_intf = f"{command[1]}{command[2]}"
+        device_id, port_id = command[0], f"{command[-2]}{command[-1]}"
+        result[(root, locan_intf)] = (device_id, port_id)
+    return result
 
 
 if __name__ == "__main__":
