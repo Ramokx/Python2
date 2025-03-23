@@ -75,6 +75,12 @@
 """
 from task_11_2 import create_network_map
 from draw_network_graph import draw_topology
+
+def unique_network_map(topology_dict):
+    unique_map = dict()
+    unique_intf = list(set(item[0] for item in [topology_dict.keys()] + [topology_dict.values()]))
+    return unique_intf
+    
 infiles = [
     "sh_cdp_n_sw1.txt",
     "sh_cdp_n_r1.txt",
@@ -84,5 +90,5 @@ infiles = [
 
 if __name__ == '__main__':
     topology = create_network_map(['sh_cdp_n_sw1.txt', 'sh_cdp_n_r1.txt', 'sh_cdp_n_r2.txt', 'sh_cdp_n_r3.txt'])
-    print(topology)
-    draw_topology(topology)
+    print(unique_network_map(topology)
+    #draw_topology(topology)
