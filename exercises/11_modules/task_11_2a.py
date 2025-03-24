@@ -78,12 +78,11 @@ from draw_network_graph import draw_topology
 
 def unique_network_map(topology_dict):
     unique_map = dict()
-    unique_intfs = list(set(item for item in list(topology_dict.keys()) + list(topology_dict.values())))
+    unique_intfs = list(set(item for item in list(topology_dict.keys()) + list(topology_dict.values()))) # все уникальные пары интерфейс + порт
     for intf in unique_intfs:
-        if intf in topology_dict.keys() and topology_dict[intf] not in unique_map.keys():
+        if intf in topology_dict.keys() and topology_dict[intf] not in unique_map.keys(): # собираем только пары, которые были ключами в избыточной топологии и проверяем, что значение не была в ключах (это условие ухода от избыточности, если со значением нет связи добавляем, если есть - нет)
             unique_map[intf] = topology_dict[intf]
     #unique_map = {intf: topology_dict[intf] for intf in unique_intfs if intf in topology_dict.keys()}
-
     return unique_map
     
 infiles = [
@@ -95,6 +94,5 @@ infiles = [
 
 if __name__ == '__main__':
     topology = create_network_map(['sh_cdp_n_sw1.txt', 'sh_cdp_n_r1.txt', 'sh_cdp_n_r2.txt', 'sh_cdp_n_r3.txt'])
-    print(unique_network_map(topology))
-    print(topology)
-    draw_topology(topology)
+    unique_topology = unique_network_map(topology)
+    draw_topology(unique_topology)
