@@ -37,23 +37,52 @@ R6           Fa 0/2          143           R S I           2811       Fa 0/0
 
 def parse_cdp_neighbors(command_output):
     """
-    Тут мы передаем вывод команды одной строкой потому что именно в таком виде будет
-    получен вывод команды с оборудования. Принимая как аргумент вывод команды,
-    вместо имени файла, мы делаем функцию более универсальной: она может работать
-    и с файлами и с выводом с оборудования.
+    Тут мы передаем вывод команды одной строкой потому что именно в таком виде
+    будет получен вывод команды с оборудования. Принимая как аргумент вывод
+    команды, вместо имени файла, мы делаем функцию более универсальной: она может
+    работать и с файлами и с выводом с оборудования.
     Плюс учимся работать с таким выводом.
     """
-    result = dict()
-    commands = [command.lstrip() for command in command_output.replace('\n\n','\n').strip().split('\n')]
-    root = commands[0][0:commands[0].find('>')] # название устройства на котором вводили команду
-    for command in commands[4:]:
+    neighbors_dict = dict()
+    main_device = command_output[:command_output.find('>')].strip()
+    commands = command_output.strip().replace('\n\n', '\n')
+    for command in commands.split('\n')[4:]:
         command = command.split()
-        locan_intf = f"{command[1]}{command[2]}"
-        device_id, port_id = command[0], f"{command[-2]}{command[-1]}"
-        result[(root, locan_intf)] = (device_id, port_id)
-    return result
-
+        neighbor = command[0]
+        local_intf = command[1] + command[2]
+        port_id = command[-2] + command[-1]
+        neighbors_dict[(main_device, local_intf)] = (neighbor, port_id)
+    return neighbors_dict
 
 if __name__ == "__main__":
-    with open("sh_cdp_n_sw1.txt") as f:
+    with open("sh_cdp_n_r1.txt") as f:
         print(parse_cdp_neighbors(f.read()))
+
+
+
+
+
+
+
+# def parse_cdp_neighbors(command_output):
+#     """
+#     Тут мы передаем вывод команды одной строкой потому что именно в таком виде будет
+#     получен вывод команды с оборудования. Принимая как аргумент вывод команды,
+#     вместо имени файла, мы делаем функцию более универсальной: она может работать
+#     и с файлами и с выводом с оборудования.
+#     Плюс учимся работать с таким выводом.
+#     """
+#     result = dict()
+#     commands = [command.lstrip() for command in command_output.replace('\n\n','\n').strip().split('\n')]
+#     root = commands[0][0:commands[0].find('>')] # название устройства на котором вводили команду
+#     for command in commands[4:]:
+#         command = command.split()
+#         locan_intf = f"{command[1]}{command[2]}"
+#         device_id, port_id = command[0], f"{command[-2]}{command[-1]}"
+#         result[(root, locan_intf)] = (device_id, port_id)
+#     return result
+#
+#
+# if __name__ == "__main__":
+#     with open("sh_cdp_n_sw1.txt") as f:
+#         print(parse_cdp_neighbors(f.read()))
