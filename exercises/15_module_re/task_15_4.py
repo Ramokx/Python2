@@ -24,3 +24,28 @@ interface Loopback0
 
 Проверить работу функции на примере файла config_r1.txt.
 """
+
+import re
+
+def get_ints_without_description(filename):
+    result = []
+    with open(filename, 'r') as file:
+        data = re.finditer(r'interface (?P<intf>\S+)\n(?P<all>(.+\n)+?)!', file.read())
+        for match in data:
+            if 'description' not in match.group('all'):
+                result.append(match.group('intf'))
+
+    # вариант с построчным считыванием файла
+        # for line in file:
+        #     flag_of_descrition = False
+        #     if line.startswith('interface'):
+        #         interface = re.search(r'interface (\S+)', line).group(1)
+        #     elif line.startswith(' description'):
+        #         flag_of_descrition = True
+        #     elif line.startswith('!') and flag_of_descrition is False:
+        #         result.append(interface)
+
+    return result
+
+if __name__ == "__main__":
+    print(get_ints_without_description('config_r1.txt'))

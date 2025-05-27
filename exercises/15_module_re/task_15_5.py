@@ -26,3 +26,16 @@ description Connected to SW1 port Eth 0/1
 
 Проверить работу функции на файле sh_cdp_n_sw1.txt.
 """
+import re
+def generate_description_from_cdp(filename):
+    result = {}
+    with open(filename, 'r') as file:
+        for line in file:
+            #intf_source = re.search(r'(.+)>.+').group(1)
+            match = re.match(r'^(?P<device>\S+) +(?P<localintf>\S+\s\d/\d).+?(?P<portid>\S+\s\d/\d)$', line)
+            if match:
+                result[match.group('localintf')] = f'description Connected to {match.group('device')} port {match.group('portid')}'
+    return result
+
+if __name__ == "__main__":
+    print(generate_description_from_cdp('sh_cdp_n_sw1.txt'))
