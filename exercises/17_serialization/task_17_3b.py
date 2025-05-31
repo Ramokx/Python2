@@ -53,7 +53,10 @@ def transform_topology(yaml_filename):
             for local_intf, neighbor in value.items():
                 #print(local_intf, neighbor)
                 device, port_id = next((key, value) for key, value in neighbor.items())
-                if (root, local_intf) not in new_topology.keys() or (device, port_id) not in new_topology.keys():
+                if (root, local_intf) in new_topology.keys() or (root, local_intf) in new_topology.values():
+                    #print((device, port_id))
+                    continue
+                else:
                     new_topology[(root, local_intf)] = (device, port_id)
         return new_topology
 
