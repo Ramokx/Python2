@@ -62,4 +62,4 @@ def transform_topology(yaml_filename):
 
 
 if __name__ == "__main__":
-    print(transform_topology('test.yaml'))
+    draw_topology(transform_topology('test.yaml'))
