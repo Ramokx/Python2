@@ -12,3 +12,27 @@
 
 Для проверки измените IP-адрес на устройстве или в файле devices.yaml.
 """
+import yaml
+from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+import paramiko
+
+def send_show_command(device, command):
+    try:
+        with ConnectHandler(**device) as ssh:
+            ssh.enable()
+            result = ssh.send_command(command)
+            return result
+    except NetmikoAuthenticationException as error:
+        print (f"Ошибка аутентификации на хосте {device['host']}: {error}")
+        return None
+    except NetmikoTimeoutException as error:
+        print (f"Хост {device['host']} недоступен. {error}")
+        return None
+        
+if __name__ == "__main__":
+    command = "sh ip int br"
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+
+    for dev in devices:
+        print(send_show_command(dev, command))
