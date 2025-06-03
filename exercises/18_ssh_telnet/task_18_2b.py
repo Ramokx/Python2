@@ -10,7 +10,7 @@
 Если при выполнении какой-то из команд возникла ошибка, функция должна выводить
 сообщение на стандартный поток вывода с информацией о том, какая ошибка возникла,
 при выполнении какой команды и на каком устройстве, например:
-Команда "logging" выполнилась с ошибкой "Incomplete command." на устройстве 192.168.100.1
+Команда "logging" выполнилась с ошибкой "dIncomplete command." на устройстве 192.168.100.1
 
 Ошибки должны выводиться всегда, независимо от значения параметра log.
 При этом, параметр log по-прежнему должен контролировать будет ли выводиться сообщение:
@@ -52,7 +52,7 @@ In [18]: pprint(result, width=120)
   'logging buffered 20010': 'config term\n'
                             'Enter configuration commands, one per line.  End with CNTL/Z.\n'
                             'R1(config)#logging buffered 20010\n'
-                            'R1(config)#'},
+                            'R1(config)#d'},
  {'a': 'config term\n'
        'Enter configuration commands, one per line.  End with CNTL/Z.\n'
        'R1(config)#a\n'
@@ -98,3 +98,43 @@ commands_with_errors = ["logging 0255.255.1", "logging", "a"]
 correct_commands = ["logging buffered 20010", "ip http server"]
 
 commands = commands_with_errors + correct_commands
+
+from netmiko import ConnectHandler
+import yaml
+import re 
+
+
+
+def send_config_commands(device, config_commands, log=True):
+    template_error = "% (?P<error>.+)"
+    good, bad = dict(), dict()
+    with ConnectHandler(**device) as ssh:
+        if log:
+            print(f"Подключаюсь к {device['host']}...")
+        ssh.enable()
+        for command in config_commands:
+            #вариант с выходом из конфигурационного режима при выполнении каждой команды
+            #result = ssh.send_config_set(command)
+            #error_match = re.search(template_error, result)
+            
+            #вариант без выхода
+            result = ssh.send_config_set(command, exit_config_mode=False)
+            error_match = re.search(template_error, result)
+            if error_match:
+                print(f"Команда {command} выполнилась с ошибкой {error_match.group('error')} на устройстве {device['host']}")
+                bad[command] = result
+            else:
+                good[command] = result
+            ssh.exit_config_mode()
+    return good,bad
+
+
+
+if __name__ == "__main__":
+    with open("devices.yaml", 'r') as f:
+        devices = yaml.safe_load(f)
+        
+    for device in devices:
+        print(send_config_commands(device, commands))
+
+
