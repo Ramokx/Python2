@@ -105,3 +105,77 @@ R3#
 
 Для выполнения задания можно создавать любые дополнительные функции.
 """
+import yaml
+from concurrent.futures import ThreadPoolExecutor
+import netmiko
+
+#commands = {
+    #"192.168.100.3": ["sh ip int br", "sh ip route | ex -"],
+    #"192.168.100.1": ["sh ip int br", "sh int desc"],
+    #"192.168.100.2": ["sh int desc"],
+#}
+
+#devices = [{'device_type': 'cisco_ios',
+  #'host': '192.168.100.1',
+  #'username': 'cisco',
+  #'password': 'cisco',
+  #'secret': 'cisco',
+  #'timeout': 10}]
+commands = ['router ospf 55', 'network 0.0.0.0 255.255.255.255 area 0']
+
+def send_command(device, command):
+    with netmiko.ConnectHandler(**device) as ssh:
+        ssh.enable()
+        prompt = ssh.find_prompt()
+        output = ssh.send_command(command)
+        return f"{prompt}{command}\n{output}\n"
+
+def send_config(device, config):
+    output = ""
+    with netmiko.ConnectHandler(**device) as ssh:
+        ssh.enable()
+        prompt = ssh.find_prompt()
+        for command in config:
+            result = ssh.send_config_set(config, strip_command=False)
+            output += f"{prompt}{result}\n"
+        return output
+        
+            
+def send_commands_to_devices(devices, filename, *, show=None, config=None, limit=3):
+    future_list = []
+    if show and config:
+        raise ValueError("Можно передавать только один аргумент show или config")
+        
+    command = show if show else config
+    function = send_command if show else send_config
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        for device in devices:
+            result = executor.submit(function, device, command)
+            future_list.append(result)
+        with open(filename, 'w') as output_file:
+            for f in future_list:
+                output_file.write(f.result())
+    #elif show:
+        #with ThreadPoolExecutor(max_workers=limit) as executor:
+            #for device in devices:
+                #result = executor.submit(send_command, device, show)
+                #future_list.append(result)
+            #with open(filename, 'w') as output_file:
+                #for f in future_list:
+                    #output_file.write(f.result())
+    #elif config:
+        #with ThreadPoolExecutor(max_workers=limit) as executor:
+            #for device in devices:
+                #result = executor.submit(send_config, device, config)
+                #future_list.append(result)
+            #with open(filename, 'w') as output_file:
+                #for f in future_list:
+                    #print(f)
+                    #output_file.write(f.result())
+        
+                    
+if __name__ == "__main__":
+    with open('devices.yaml', 'r') as input:
+        data = yaml.safe_load(input)
+
+    send_commands_to_devices(data, 'result.txt', show='sh clock')
