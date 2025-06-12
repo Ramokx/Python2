@@ -18,7 +18,7 @@
 
 """
 import yaml
-from netmiko import ConnectHandler, NetmikoAuthenticationException, NetmikoAuthenticationException
+from netmiko import ConnectHandler, NetmikoAuthenticationException, NetmikoTimeoutException
 import paramiko
 
 def send_show_command(device, command):
