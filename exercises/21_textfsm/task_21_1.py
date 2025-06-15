@@ -22,7 +22,8 @@ def parse_command_output(template, command_output):
     with open(template) as template:
         fsm = textfsm.TextFSM(template)
         result = fsm.ParseText(command_output)
-    return result
+        header = fsm.header
+    return [header] + result
 
 
 # вызов функции должен выглядеть так
