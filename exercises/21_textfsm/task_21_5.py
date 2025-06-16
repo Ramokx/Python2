@@ -4,6 +4,7 @@
 
 Создать функцию send_and_parse_command_parallel.
 
+
 Функция send_and_parse_command_parallel должна запускать в
 параллельных потоках функцию send_and_parse_show_command из задания 21.4.
 
@@ -38,3 +39,20 @@
 Проверить работу функции на примере вывода команды sh ip int br
 и устройствах из devices.yaml.
 """
+from task_21_4 import send_and_parse_show_command
+from concurrent.futures import ThreadPoolExecutor
+import yaml
+from itertools import repeat
+def send_and_parse_command_parallel(devices, command, templates_path, limit=3):
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        executor_result = executor.map(send_and_parse_show_command, devices, repeat(command), repeat(templates_path))
+        result = dict()
+        for device, output in zip(devices, executor_result):
+            result[device['host']] = output 
+        return result 
+
+if __name__ == "__main__":
+    with open('devices.yaml', 'r') as device_file:
+        devices = yaml.safe_load(device_file)
+    print(send_and_parse_command_parallel(devices, 'sh ip int br', 'templates'))
+    
