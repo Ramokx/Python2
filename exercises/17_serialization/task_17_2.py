@@ -42,10 +42,33 @@
 
 Кроме того, создан список заголовков (headers), который должен быть записан в CSV.
 """
-
+import csv
 import glob
+import re
+
+from markdown_it.rules_inline import image
 
 sh_version_files = glob.glob("sh_vers*")
 # print(sh_version_files)
 
 headers = ["hostname", "ios", "image", "uptime"]
+
+def parse_sh_version(command_output):
+    ios = re.search(r'Cisco IOS.+Version (?P<ios>.+),', command_output).group('ios')
+    uptime = re.search(r'uptime is (?P<uptime>.+)', command_output).group('uptime')
+    image = re.search(r'image file is \"(?P<image>.+)\"', command_output).group('image')
+    return ios, image, uptime
+
+def write_inventory_to_csv(data_filenames, csv_filename):
+    with open(csv_filename, 'w', encoding='utf-8', newline='') as output_file:
+        writer = csv.writer(output_file)
+        writer.writerow(headers)
+        for file in data_filenames:
+            current_hostname = re.search(r'.+_(?P<hostname>.+)\.', str(file)).group('hostname')
+            with open(file, 'r') as current_file:
+                current_ios, current_image, current_uptime = parse_sh_version(current_file.read())
+                writer.writerow([current_hostname, current_ios, current_image, current_uptime])
+
+if __name__ == "__main__":
+    write_inventory_to_csv(sh_version_files, 'task17_2.csv')
+

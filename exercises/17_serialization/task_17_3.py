@@ -24,3 +24,23 @@ R6           Fa 0/2          143           R S I           2811       Fa 0/0
 
 Проверить работу функции на содержимом файла sh_cdp_n_sw1.txt
 """
+import re
+import json
+from re import finditer
+
+
+def parse_sh_cdp_neighbors(command_output):
+    result = {}
+    command_output = command_output.strip()
+    #for line in command_output:
+    root = re.search(r'^(?P<root>.+)>', command_output).group('root')
+    #print(command_output)
+    matches = finditer(r'(?P<neighb>\S+) +(?P<localintf>.+?) {2,} \d+\s+.+ (?P<portid>\w+ .+)', command_output)
+    for match in matches:
+        neighb, local_intf, port_id = match.groups()
+        result.setdefault(root, {}).update({local_intf: {neighb: port_id}})
+    return result
+
+if __name__ == "__main__":
+    with open('sh_cdp_n_r1.txt', 'r') as file:
+        print(parse_sh_cdp_neighbors(file.read()))
