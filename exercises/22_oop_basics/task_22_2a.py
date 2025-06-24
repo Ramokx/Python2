@@ -50,3 +50,50 @@ up      \r\nEthernet0/1                192.168.200.1   YES NVRAM  up...'
 
 
 """
+import telnetlib
+from textfsm import clitable
+
+class CiscoTelnet:
+    def __init__(self, ip, username, password, secret):
+        self.connection = telnetlib.Telnet(ip)
+        self.connection.read_until(b'Username')
+        self._write_line(username)
+        self.connection.read_until(b'Password')
+        self._write_line(password)
+        self._write_line('enable')
+        self.connection.read_until(b'Password')
+        self._write_line(secret)
+        self.connection.read_until(b'#')
+        self._write_line('terminal length 0')
+        self.connection.read_until(b"#", timeout=5)
+        
+        
+    def _write_line(self, line):
+        self.connection.write(line.encode('utf-8') + b'\n')
+        
+        
+    def send_show_command(self, show, parse=True, templates='templates', index='index'):
+        self._write_line(show)
+        command_output = self.connection.read_until(b'#', timeout=5).decode('utf-8').replace('\r\n', '\n')
+        if parse:
+            #output = {}
+            self._write_line(show)
+            command_output = self.connection.read_until(b'#', timeout=5).decode('utf-8').replace('\r\n', '\n')
+            attributes_dict = {'Command': show, 'Vendor': 'cisco_ios'}
+            cli_table = clitable.CliTable(index, templates)
+            cli_table.ParseCmd(command_output, attributes_dict)
+            data_rows = [list(row) for row in cli_table]
+            header = list(cli_table.header)
+            output = [{key: value for key, value in zip(header, value)} for value in data_rows]
+        else:
+            output = command_output
+        return output
+
+
+r1_params = {'ip': '192.168.100.1','username': 'cisco','password': 'cisco','secret': 'cisco'}
+
+
+if __name__ == "__main__":
+    r1 = CiscoTelnet(**r1_params)
+    print(r1.send_show_command("sh ip int br", parse=True))
+    print(r1.send_show_command("sh ip int br", parse=False))
