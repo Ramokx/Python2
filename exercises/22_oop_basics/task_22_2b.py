@@ -59,8 +59,6 @@ class CiscoTelnet:
         command_output = self.connection.read_until(b'#', timeout=5).decode('utf-8').replace('\r\n', '\n')
         if parse:
             #output = {}
-            self._write_line(show)
-            command_output = self.connection.read_until(b'#', timeout=5).decode('utf-8').replace('\r\n', '\n')
             attributes_dict = {'Command': show, 'Vendor': 'cisco_ios'}
             cli_table = clitable.CliTable(index, templates)
             cli_table.ParseCmd(command_output, attributes_dict)

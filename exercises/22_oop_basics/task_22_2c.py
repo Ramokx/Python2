@@ -141,4 +141,4 @@ r1_params = {'ip': '192.168.100.1','username': 'cisco','password': 'cisco','secr
 if __name__ == "__main__":
     r1 = CiscoTelnet(**r1_params)
     commands = ['logging 0255.255.1', 'logging']
-    print(r1.send_config_commands('logging 10.1.1.1'))
+    print(r1.send_config_commands(commands, strict=False))
